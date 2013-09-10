@@ -1,0 +1,107 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Engine;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.util.*;
+import java.awt.*;
+import java.awt.image.*;
+
+/**
+ *
+ * @author Brandon
+ */
+public class Tile implements Drawable{
+    
+    //public static enum Side{Top, Bottom, Front, Back, Left, Right}
+    
+    //private java.awt.Image[] sides = new java.awt.Image[6];
+    private java.awt.Point _location = new java.awt.Point(300, 300);
+
+    private Dimension _size;
+    
+    public char _type = '$';
+
+    private java.awt.Image _image = null;
+    
+    
+    public Tile(){
+        
+        _size = new Dimension(16,16);
+
+    }
+    
+    public Tile clone()
+    {
+        Tile newTile = new Tile(_location.x, _location.y, _image);
+
+        return newTile;
+    
+    }
+    
+    public Tile(int x, int y){
+        
+        _size = new Dimension(16,16);
+        
+        _location = new java.awt.Point(x * 16, y * 16);
+
+    }
+    
+    public Tile(int x, int y, java.awt.Image image){
+        
+        _size = new Dimension(16,16);
+        
+        _location = new java.awt.Point(x * 16, y * 16);
+
+        _image = image;
+        
+        
+    }
+    
+    public void setLocation(java.awt.Point location)
+    {
+        this._location = location;
+    
+    }
+    
+    
+    @Override
+    public void draw(Graphics2D g) {
+
+        g.setColor(Color.red);
+        
+        //g.rotate(Math.toRadians(45));
+        g.drawRect(_location.x, _location.y, _size.width, _size.height);
+        //g.drawRect(_location.x, _location.y + _height, _size.width, _size.height);
+        
+        
+        g.drawString("" + _type, this._location.x + 2, this._location.y + 9);
+        
+        if(_image != null){
+        
+            g.drawImage(_image, _location.x, _location.y, null);
+        
+        }
+        
+        
+        
+    }
+
+    @Override
+    public void update(long milliseconds) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Dimension getSize() {
+        
+        return null;
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+}

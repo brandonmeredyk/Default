@@ -1,0 +1,40 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Editor;
+
+/**
+ *
+ * @author Brandon
+ */
+public class Editor {
+    
+        
+    
+    public Editor()
+    {
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    public static void main(String[] args){
+    
+    
+    
+    
+    
+    }
+    
+    
+    
+}

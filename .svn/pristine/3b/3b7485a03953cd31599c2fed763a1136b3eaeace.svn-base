@@ -1,0 +1,293 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Engine;
+
+
+import java.util.*;
+import java.awt.*;
+import java.awt.image.*;
+import javax.imageio.*;
+import java.io.*;
+
+/**
+ *
+ * @author Brandon
+ */
+public class Engine implements Runnable{
+    
+    private Frame _frame;
+    
+    private ViewPort _window;
+
+    private static long _previousStamp = System.nanoTime(); //Stamp beginning
+    
+    private BufferStrategy _graphicsStrategy;
+    
+    HashSet<Drawable> _things = new HashSet<>();
+    
+    private Tile[][] _tiles = new Tile[50][50];
+            
+    private boolean _debug = false;
+    
+    private DebugWindow _debugWindow;
+    
+    private HashMap<String, BufferedImage> _images = new HashMap<>();
+    
+    
+    
+    public Engine(){
+        
+        _frame = new Frame();
+        
+        _frame.setSize(600, 600);
+        
+        _frame.setLocation(300, 300);
+        
+        _frame.setUndecorated(true);
+        
+        _window = new ViewPort(_frame, this);
+        
+        _window.setBackground(Color.black);
+        
+        _frame.setVisible(true);
+        
+        _window.setVisible(true);
+        
+         // Create a general double-buffering strategy
+        _window.createBufferStrategy(2);
+        
+        _graphicsStrategy = _window.getBufferStrategy();
+        
+        _debugWindow = new DebugWindow(this);
+        
+        //this._things.add(new Tile());
+        
+        this.loadImages();
+        
+        this.LoadTiles();
+        
+        this.Save("test.txt");
+        
+        startGameLoop();
+    }
+    
+    public void loadImages(){
+
+        File folder = new File("C:\\Users\\Brandon\\Documents\\NetBeansProjects\\Default\\src\\Engine\\Sprites\\Tiles\\");
+        File[] listOfFiles = folder.listFiles();
+        
+        for(File f : listOfFiles)
+        {
+            try{
+            
+                BufferedImage in = ImageIO.read(f);
+        
+                _images.put(f.getName(), in);
+            }
+            catch(Exception e){}
+        }
+        
+        System.out.println(_images.size() + " Images Loaded.");
+        
+        /*
+      try{
+            File img = new File("C:\\Users\\Brandon\\Documents\\NetBeansProjects\\Default\\src\\Engine\\Sprites\\Tiles\\Grass1.png");
+            BufferedImage in = ImageIO.read(img);
+        
+            _images.put("Grass1", in);
+
+            File img2 = new File("C:\\Users\\Brandon\\Documents\\NetBeansProjects\\Default\\src\\Engine\\Sprites\\Tiles\\Sand1.png");
+            BufferedImage in2 = ImageIO.read(img2);
+        
+            _images.put("Sand1", in2);
+
+            File img3 = new File("C:\\Users\\Brandon\\Documents\\NetBeansProjects\\Default\\src\\Engine\\Sprites\\Tiles\\Water.png");
+            BufferedImage in3 = ImageIO.read(img3);
+        
+            _images.put("Water", in3);
+  
+            File img4 = new File("C:\\Users\\Brandon\\Documents\\NetBeansProjects\\Default\\src\\Engine\\Sprites\\Tiles\\Bridge.png");
+            BufferedImage in4 = ImageIO.read(img4);
+        
+            _images.put("Bridge", in4);
+            
+          }
+        catch(Exception e ){
+            e.printStackTrace();
+                
+        }
+    */
+    }
+    
+    
+    public void LoadTiles(){
+        
+        int t;
+        
+        Object[] keyset = _images.keySet().toArray();
+        
+        for(int y = 0; y < 50; y++)
+        {
+            t = y % _images.size();
+            for(int x = 0; x < 50; x++)
+            {
+                if(t >= _images.size()){t = 0;}
+                
+                _tiles[x][y] = new Tile(x,y, _images.get(keyset[t]));
+                t++;
+                
+            }
+        }
+    }
+    
+    private void Save(String fileLocation){
+    
+        try{
+            FileWriter fstream = new FileWriter(fileLocation);
+            BufferedWriter out = new BufferedWriter(fstream);
+            
+            out.write("<PROPERTIES>");
+            out.write("<SIZE>");
+            
+            out.write("</SIZE>");
+            
+            out.write("</PROPERTIES>");
+            
+            out.write("<TILES>");
+            
+            for( Tile[] t : _tiles)
+            {
+                for (Tile s : t)
+                {
+                    out.write(s._type);
+                }
+                
+            }
+            
+            out.write("</TILES>");
+            
+            //Close the output stream
+            out.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println("Save Failed");
+        }
+    
+    }
+    
+    private void startGameLoop(){
+     
+        new Thread(this).start();
+
+    }
+    
+    
+    private void RenderTiles(Graphics2D g){
+    
+        for(Tile[] t : _tiles)
+        {
+           for(Tile s : t)
+            {
+                s.draw(g);
+
+            } 
+        }
+    }
+    
+    public void draw(Graphics2D g){
+        
+        //Transform and Scale draw here
+        //graphics.getTransform();
+        
+        RenderTiles(g);
+        
+        for(Drawable d : _things)
+        {
+            d.draw(g);
+        }
+        
+        if(_debug)
+        {
+            _debugWindow.draw(g);
+           
+        }
+        
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public static void main(String[] args) {
+        // TODO code application logic here
+
+        System.out.println("Engine Starting...");
+        new Engine();
+
+    }
+    
+    
+    public void update(long milliseconds)
+    {
+        for(Drawable d : _things)
+        {
+            d.update(milliseconds);
+        }
+    }
+    
+    public Dimension getViewPortSize()
+    {
+        return this._window.getSize();
+    
+    }
+    
+    @Override
+    @SuppressWarnings("SleepWhileInLoop")
+    public void run() {
+       // Main loop
+        while (true) {
+            long currentTime = System.nanoTime();
+            long deltaT = currentTime - _previousStamp; 
+            _previousStamp = currentTime;
+            
+            // Prepare for rendering the next frame passed as milliseconds
+            this.update(deltaT / 1000);
+            
+            
+            // Render single frame
+            do {
+                // The following loop ensures that the contents of the drawing buffer
+                // are consistent in case the underlying surface was recreated
+                do {
+                    // Get a new graphics context every time through the loop
+                    // to make sure the strategy is validated
+                    Graphics2D graphics = (Graphics2D)_graphicsStrategy.getDrawGraphics();
+                    
+                  
+                    
+                    // Render to graphics
+                    // ...
+                    
+                    this.draw(graphics);
+
+                    // Dispose the graphics
+                    graphics.dispose();
+
+                // Repeat the rendering if the drawing buffer contents
+                // were restored
+                } while (_graphicsStrategy.contentsRestored());
+
+                // Display the buffer
+                _graphicsStrategy.show();
+
+            // Repeat the rendering if the drawing buffer was lost
+            } while (_graphicsStrategy.contentsLost());
+        
+        }
+
+    }
+ 
+}

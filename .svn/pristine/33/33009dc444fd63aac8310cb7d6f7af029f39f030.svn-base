@@ -1,0 +1,65 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Editor;
+
+import java.awt.*;
+import java.awt.Toolkit;
+
+/**
+ *
+ * @author Brandon
+ */
+public class Editor extends Frame{
+    
+    private Engine.Engine _engine;
+    
+    public Editor()
+    {
+        
+        super("Dragon Warrior Editor");
+        
+        this.setSize(800, 800);
+        
+        
+        this.setVisible(true);
+        
+        //this.setSize(600, 600);
+        
+       
+    
+        _engine = new Engine.Engine(this);
+        
+        
+    }
+
+    @Override
+    public void setLocation(Point p) {
+        super.setLocation(p); //To change body of generated methods, choose Tools | Templates.
+        
+        _engine._window.setLocation(this.getLocation().x + 50, this.getLocation().y + 50);
+        
+        
+        
+    }
+    
+    
+    
+
+    
+    
+    
+    
+    
+    public static void main(String[] args){
+    
+        new Editor();
+    
+    
+    
+    }
+    
+    
+    
+}

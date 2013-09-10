@@ -1,0 +1,75 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Engine;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.util.HashSet;
+import java.util.Set;
+import java.awt.image.*;
+import java.util.*;
+import java.awt.*;
+
+
+/**
+ *
+ * @author Brandon
+ */
+public class DebugWindow implements Drawable{
+
+    private Engine _engine;
+    
+    private Dimension2D _size;
+    
+    public DebugWindow(Engine engine)
+    {
+        _engine = engine;
+        
+        Dimension d = _engine.getViewPortSize();
+        
+        _size = new Dimension2D(d.width, d.height);
+        
+    }
+    
+    
+    @Override
+    public void draw(Graphics2D g) {
+
+        g.setColor(Color.BLACK);
+        
+        g.fillRect(0, 0, (int)_size.Width, (int)_size.Height / 3);
+                
+        g.setColor(Color.red);
+
+        //g.drawLine(0, 0, _size.width, _size.height / 3);
+        g.drawString("Debug Console", _size.Width - 100, (_size.Height / 3)- 10 );
+        
+        
+    }
+
+    @Override
+    public void update(long milliseconds) {
+        
+        
+        
+    }
+    
+    @Override
+    public Vector2D getLocation() {
+        
+        return null;
+        
+    }
+    
+    
+    
+    public Dimension2D getSize() {
+        return _size;
+    
+    }
+    
+    
+}

@@ -1,0 +1,159 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Engine;
+
+
+import java.util.*;
+import java.awt.*;
+import java.awt.image.*;
+
+/**
+ *
+ * @author Brandon
+ */
+public class Engine implements Runnable{
+    
+    private Frame _frame;
+    
+    private ViewPort _window;
+
+    private static long _previousStamp = System.nanoTime(); //Stamp beginning
+    
+    private BufferStrategy _graphicsStrategy;
+    
+    HashSet<Drawable> _things = new HashSet<>();
+    
+    private boolean _debug = false;
+    
+    private DebugWindow _debugWindow;
+    
+    public Engine(){
+        
+        _frame = new Frame();
+        
+        _frame.setSize(600, 600);
+        
+        _frame.setUndecorated(true);
+        
+        _window = new ViewPort(_frame, this);
+        
+        _window.setBackground(Color.black);
+        
+        _frame.setVisible(true);
+        
+        _window.setVisible(true);
+        
+         // Create a general double-buffering strategy
+        _window.createBufferStrategy(2);
+        
+        _graphicsStrategy = _window.getBufferStrategy();
+        
+        _debugWindow = new DebugWindow(this);
+        
+        
+        startGameLoop();
+    }
+    
+    private void startGameLoop(){
+     
+        new Thread(this).start();
+
+    }
+    
+    
+    
+    public void draw(Graphics g){
+        
+        //Transform and Scale draw here
+        //graphics.getTransform();
+        
+        for(Drawable d : _things)
+        {
+            d.draw(g);
+
+        }
+        
+        if(_debug)
+        {
+            _debugWindow.draw(g);
+           
+        }
+        
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public static void main(String[] args) {
+        // TODO code application logic here
+
+        System.out.println("Engine Starting...");
+        new Engine();
+
+    }
+    
+    
+    public void update(long milliseconds)
+    {
+        for(Drawable d : _things)
+        {
+            d.update(milliseconds);
+        }
+    }
+    
+    public Dimension getViewPortSize()
+    {
+        return this._window.getSize();
+    
+    }
+    
+    @Override
+    @SuppressWarnings("SleepWhileInLoop")
+    public void run() {
+       // Main loop
+        while (true) {
+            long currentTime = System.nanoTime();
+            long deltaT = currentTime - _previousStamp; 
+            _previousStamp = currentTime;
+            
+            // Prepare for rendering the next frame passed as milliseconds
+            this.update(deltaT / 1000);
+            
+            
+            // Render single frame
+            do {
+                // The following loop ensures that the contents of the drawing buffer
+                // are consistent in case the underlying surface was recreated
+                do {
+                    // Get a new graphics context every time through the loop
+                    // to make sure the strategy is validated
+                    Graphics2D graphics = (Graphics2D)_graphicsStrategy.getDrawGraphics();
+                    
+                  
+                    
+                    // Render to graphics
+                    // ...
+                    
+                    this.draw(graphics);
+
+                    // Dispose the graphics
+                    graphics.dispose();
+
+                // Repeat the rendering if the drawing buffer contents
+                // were restored
+                } while (_graphicsStrategy.contentsRestored());
+
+                // Display the buffer
+                _graphicsStrategy.show();
+
+            // Repeat the rendering if the drawing buffer was lost
+            } while (_graphicsStrategy.contentsLost());
+        
+        }
+
+    }
+ 
+}
